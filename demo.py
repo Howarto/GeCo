@@ -77,7 +77,7 @@ def demo(args):
             draw.text((x1, y1-20), f'Object {i+1}', fill='red')
 
         # Save output image
-        output_path = os.path.splitext(img_path)[0] + '_detected.jpg'
+        output_path = args.output_path
         output_image.save(output_path)
         print(f"Output image saved to: {output_path}")
 
@@ -92,7 +92,7 @@ def demo(args):
                     combined_masks.cpu().unsqueeze(0))[0])[:image.shape[1], :image.shape[2]]
 
             # Save mask as image
-            mask_path = os.path.splitext(img_path)[0] + '_masks.png'
+            mask_path = args.mask_path
             mask_normalized = (mask_display / mask_display.max() * 255).numpy().astype(np.uint8)
             mask_image = Image.fromarray(mask_normalized, mode='L')
             mask_image.save(mask_path)
@@ -125,10 +125,22 @@ if __name__ == '__main__':
         image_path='./demo_image.jpg'  # Default image path
     )
 
+    # Add output path arguments
+    parser.add_argument('--output_path', default=None, type=str,
+                       help='Path to save the output image with detections (default: {image_path}_detected.jpg)')
+    parser.add_argument('--mask_path', default=None, type=str,
+                       help='Path to save the mask image (default: {image_path}_masks.png)')
+
     args = parser.parse_args()
 
     # Ensure we're in zero-shot mode
     args.zero_shot = True
+
+    # Set default output paths based on image_path if not provided
+    if args.output_path is None:
+        args.output_path = os.path.splitext(args.image_path)[0] + '_detected.jpg'
+    if args.mask_path is None:
+        args.mask_path = os.path.splitext(args.image_path)[0] + '_masks.png'
 
     print("GeCo Zero-Shot Object Detection Demo")
     print("=====================================")
@@ -136,6 +148,8 @@ if __name__ == '__main__':
     print(f"Max objects: {args.num_objects}")
     print(f"Output masks: {args.output_masks}")
     print(f"Image path: {args.image_path}")
+    print(f"Output path: {args.output_path}")
+    print(f"Mask path: {args.mask_path}")
     print()
 
     # Check if image exists
