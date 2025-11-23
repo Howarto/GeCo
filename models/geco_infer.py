@@ -89,10 +89,7 @@ class GeCo(nn.Module):
             iou_head_hidden_dim=256,
         )
 
-        checkpoint = torch.hub.load_state_dict_from_url(
-            'https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth',
-            map_location="cpu"
-        )
+        checkpoint = torch.load('sam_vit_h_4b8939.pth', map_location='cpu')
         state_dict = {k.replace("mask_decoder.", ""): v for k, v in checkpoint.items() if "mask_decoder" in k}
         self.mask_decoder.load_state_dict(state_dict)
         state_dict = {k.replace("prompt_encoder.", ""): v for k, v in checkpoint.items() if "prompt_encoder" in k}
